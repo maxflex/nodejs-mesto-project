@@ -1,19 +1,21 @@
-import { Request, Response, NextFunction } from "express";
-import Card from "../models/card";
-import { ErrorNotFound } from "../errors";
+import { Request, Response, NextFunction } from 'express';
+import Card from '../models/card';
+import { ErrorNotFound } from '../errors';
 
-export const getCards = (req: Request, res: Response) =>
+export const getCards = (req: Request, res: Response) => {
   Card.find({}).then((data) => res.send({ data }));
+};
 
-export const deleteCard = (req: Request, res: Response, next: NextFunction) =>
+export const deleteCard = (req: Request, res: Response, next: NextFunction) => {
   Card.findByIdAndDelete(req.params.cardId)
     .then((card) => {
       if (!card) {
-        throw new ErrorNotFound("Карточка с указанным _id не найдена");
+        throw new ErrorNotFound('Карточка с указанным _id не найдена');
       }
       res.send(card);
     })
     .catch(next);
+};
 
 export const createCard = (req: Request, res: Response) => {
   const { name, link } = req.body;
@@ -27,7 +29,7 @@ export const createCard = (req: Request, res: Response) => {
   }).then((card) => res.status(201).send(card));
 };
 
-export const likeCard = (req: Request, res: Response, next: NextFunction) =>
+export const likeCard = (req: Request, res: Response, next: NextFunction) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     {
@@ -36,27 +38,29 @@ export const likeCard = (req: Request, res: Response, next: NextFunction) =>
         likes: req.user._id,
       },
     },
-    { new: true }
+    { new: true },
   )
     .then((card) => {
       if (!card) {
-        throw new ErrorNotFound("Передан несуществующий _id карточки");
+        throw new ErrorNotFound('Передан несуществующий _id карточки');
       }
       res.send(card);
     })
     .catch(next);
+};
 
-export const dislikeCard = (req: Request, res: Response, next: NextFunction) =>
+export const dislikeCard = (req: Request, res: Response, next: NextFunction) => {
   Card.findByIdAndUpdate(
     req.params.cardId,
     // @ts-expect-error
     { $pull: { likes: req.user._id } }, // убрать _id из массива
-    { new: true }
+    { new: true },
   )
     .then((card) => {
       if (!card) {
-        throw new ErrorNotFound("Передан несуществующий _id карточки");
+        throw new ErrorNotFound('Передан несуществующий _id карточки');
       }
       res.send(card);
     })
     .catch(next);
+};

@@ -1,28 +1,28 @@
-import { Router } from "express";
-import { celebrate, Joi } from "celebrate";
+import { Router } from 'express';
+import { celebrate, Joi } from 'celebrate';
 import {
   createCard,
   deleteCard,
   dislikeCard,
   getCards,
   likeCard,
-} from "../controllers/cards";
+} from '../controllers/cards';
 
 const router = Router();
 
-router.get("/cards", getCards);
+router.get('/cards', getCards);
 router.post(
-  "/cards",
+  '/cards',
   celebrate({
     body: Joi.object().keys({
       name: Joi.string().required().min(2).max(30),
       link: Joi.string().required(),
     }),
   }),
-  createCard
+  createCard,
 );
-router.delete("/cards/:cardId", deleteCard);
-router.put("/cards/:cardId/likes", likeCard);
-router.delete("/cards/:cardId/likes", dislikeCard);
+router.delete('/cards/:cardId', deleteCard);
+router.put('/cards/:cardId/likes', likeCard);
+router.delete('/cards/:cardId/likes', dislikeCard);
 
 export default router;
