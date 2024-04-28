@@ -6,11 +6,11 @@ import {
 
 const router = Router();
 
-router.get('/users', getUsers);
-router.get('/users/:userId', getUser);
+router.get('/', getUsers);
+router.get('/:userId', getUser);
 
 router.post(
-  '/users',
+  '',
   celebrate({
     body: Joi.object().keys({
       name: Joi.string().required().min(2).max(30),
@@ -22,7 +22,7 @@ router.post(
 );
 
 router.patch(
-  '/users/me',
+  '/me',
   celebrate({
     body: Joi.object().keys({
       name: Joi.string().required().min(2).max(30),
@@ -33,7 +33,7 @@ router.patch(
 );
 
 router.patch(
-  '/users/me/avatar',
+  '/me/avatar',
   celebrate({
     body: Joi.object().keys({
       avatar: Joi.string().required(),

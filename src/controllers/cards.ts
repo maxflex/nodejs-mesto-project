@@ -1,32 +1,27 @@
 import { Request, Response, NextFunction } from 'express';
 import Card from '../models/card';
-import { ErrorNotFound } from '../errors';
 
-export const getCards = (req: Request, res: Response) => {
-  Card.find({}).then((data) => res.send({ data }));
+export const getCards = (req: Request, res: Response, next: NextFunction) => {
+  Card.find({})
+    .then((data) => res.send({ data }))
+    .catch(next);
 };
 
 export const deleteCard = (req: Request, res: Response, next: NextFunction) => {
   Card.findByIdAndDelete(req.params.cardId)
-    .then((card) => {
-      if (!card) {
-        throw new ErrorNotFound('Карточка с указанным _id не найдена');
-      }
-      res.send(card);
-    })
+    .orFail()
+    .then((card) => res.send(card))
     .catch(next);
 };
 
-export const createCard = (req: Request, res: Response) => {
+export const createCard = (req: Request, res: Response, next: NextFunction) => {
   const { name, link } = req.body;
   // @ts-expect-error
   const owner = req.user._id;
 
-  return Card.create({
-    name,
-    link,
-    owner,
-  }).then((card) => res.status(201).send(card));
+  Card.create({ name, link, owner })
+    .then((card) => res.status(201).send(card))
+    .catch(next);
 };
 
 export const likeCard = (req: Request, res: Response, next: NextFunction) => {
@@ -38,14 +33,10 @@ export const likeCard = (req: Request, res: Response, next: NextFunction) => {
         likes: req.user._id,
       },
     },
-    { new: true },
+    { new: true, runValidators: true },
   )
-    .then((card) => {
-      if (!card) {
-        throw new ErrorNotFound('Передан несуществующий _id карточки');
-      }
-      res.send(card);
-    })
+    .orFail()
+    .then((card) => res.send(card))
     .catch(next);
 };
 
@@ -54,13 +45,9 @@ export const dislikeCard = (req: Request, res: Response, next: NextFunction) => 
     req.params.cardId,
     // @ts-expect-error
     { $pull: { likes: req.user._id } }, // убрать _id из массива
-    { new: true },
+    { new: true, runValidators: true },
   )
-    .then((card) => {
-      if (!card) {
-        throw new ErrorNotFound('Передан несуществующий _id карточки');
-      }
-      res.send(card);
-    })
+    .orFail()
+    .then((card) => res.send(card))
     .catch(next);
 };

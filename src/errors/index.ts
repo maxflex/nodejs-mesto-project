@@ -1,10 +1,7 @@
-export class ErrorNotFound extends Error {
-  statusCode: number;
-
-  constructor(message: string) {
+export class RouteNotExistsError extends Error {
+  constructor(message: string = 'Маршрут не существует') {
     super(message);
-    this.statusCode = 404;
   }
 }
 
-export default ErrorNotFound;
+export default RouteNotExistsError;

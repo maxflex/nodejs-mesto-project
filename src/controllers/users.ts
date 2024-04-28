@@ -1,38 +1,29 @@
 import { NextFunction, Request, Response } from 'express';
 import User from '../models/user';
-import { ErrorNotFound } from '../errors';
 
-export const getUsers = (req: Request, res: Response) => {
-  User.find({}).then((data) => res.send({ data }));
+export const getUsers = (req: Request, res: Response, next: NextFunction) => {
+  User.find({}).then((data) => res.send({ data })).catch(next);
 };
 
 export const getUser = (req: Request, res: Response, next: NextFunction) => {
   User.findById(req.params.userId)
-    .then((user) => {
-      if (!user) {
-        throw new ErrorNotFound('Пользователь по указанному _id не найден');
-      }
-      res.send(user);
-    })
+    .orFail()
+    .then((user) => res.send(user))
     .catch(next);
 };
 
-export const createUser = (req: Request, res: Response) => {
+export const createUser = (req: Request, res: Response, next: NextFunction) => {
   const { name, about, avatar } = req.body;
-  return User.create({ name, about, avatar }).then((user) => res.status(201).send(user));
+  User.create({ name, about, avatar }).then((user) => res.status(201).send(user)).catch(next);
 };
 
 export const updateProfile = (req: Request, res: Response, next: NextFunction) => {
   const { name, about } = req.body;
   // @ts-expect-error
   const userId = req.user._id;
-  return User.findByIdAndUpdate(userId, { name, about }, { new: true })
-    .then((user) => {
-      if (!user) {
-        throw new ErrorNotFound('Пользователь с указанным _id не найден');
-      }
-      res.send(user);
-    })
+  User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
+    .orFail()
+    .then((user) => res.send(user))
     .catch(next);
 };
 
@@ -40,12 +31,8 @@ export const updateAvatar = (req: Request, res: Response, next: NextFunction) =>
   const { avatar } = req.body;
   // @ts-expect-error
   const userId = req.user._id;
-  return User.findByIdAndUpdate(userId, { avatar }, { new: true })
-    .then((user) => {
-      if (!user) {
-        throw new ErrorNotFound('Пользователь с указанным _id не найден');
-      }
-      res.send(user);
-    })
+  User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
+    .orFail()
+    .then((user) => res.send(user))
     .catch(next);
 };
