@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { constants } from 'http2';
 import Card from '../models/card';
 
 export const getCards = (req: Request, res: Response, next: NextFunction) => {
@@ -20,7 +21,7 @@ export const createCard = (req: Request, res: Response, next: NextFunction) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .then((card) => res.status(201).send(card))
+    .then((card) => res.status(constants.HTTP_STATUS_CREATED).send(card))
     .catch(next);
 };
 
@@ -33,7 +34,7 @@ export const likeCard = (req: Request, res: Response, next: NextFunction) => {
         likes: req.user._id,
       },
     },
-    { new: true, runValidators: true },
+    { new: true },
   )
     .orFail()
     .then((card) => res.send(card))
@@ -45,7 +46,7 @@ export const dislikeCard = (req: Request, res: Response, next: NextFunction) => 
     req.params.cardId,
     // @ts-expect-error
     { $pull: { likes: req.user._id } }, // убрать _id из массива
-    { new: true, runValidators: true },
+    { new: true },
   )
     .orFail()
     .then((card) => res.send(card))

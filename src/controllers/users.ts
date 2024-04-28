@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { UpdateQuery } from 'mongoose';
+import { constants } from 'http2';
 import User, { IUser } from '../models/user';
 
 function updateUser(update: UpdateQuery<IUser>, req: Request, res: Response, next: NextFunction) {
@@ -24,7 +25,9 @@ export const getUser = (req: Request, res: Response, next: NextFunction) => {
 
 export const createUser = (req: Request, res: Response, next: NextFunction) => {
   const { name, about, avatar } = req.body;
-  User.create({ name, about, avatar }).then((user) => res.status(201).send(user)).catch(next);
+  User.create({ name, about, avatar })
+    .then((user) => res.status(constants.HTTP_STATUS_CREATED).send(user))
+    .catch(next);
 };
 
 export const updateProfile = (req: Request, res: Response, next: NextFunction) => {
