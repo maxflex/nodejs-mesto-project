@@ -1,5 +1,15 @@
 import { NextFunction, Request, Response } from 'express';
-import User from '../models/user';
+import { UpdateQuery } from 'mongoose';
+import User, { IUser } from '../models/user';
+
+function updateUser(update: UpdateQuery<IUser>, req: Request, res: Response, next: NextFunction) {
+  // @ts-expect-error
+  const userId = req.user._id;
+  User.findByIdAndUpdate(userId, update, { new: true, runValidators: true })
+    .orFail()
+    .then((user) => res.send(user))
+    .catch(next);
+}
 
 export const getUsers = (req: Request, res: Response, next: NextFunction) => {
   User.find({}).then((data) => res.send({ data })).catch(next);
@@ -19,20 +29,10 @@ export const createUser = (req: Request, res: Response, next: NextFunction) => {
 
 export const updateProfile = (req: Request, res: Response, next: NextFunction) => {
   const { name, about } = req.body;
-  // @ts-expect-error
-  const userId = req.user._id;
-  User.findByIdAndUpdate(userId, { name, about }, { new: true, runValidators: true })
-    .orFail()
-    .then((user) => res.send(user))
-    .catch(next);
+  updateUser({ name, about }, req, res, next);
 };
 
 export const updateAvatar = (req: Request, res: Response, next: NextFunction) => {
   const { avatar } = req.body;
-  // @ts-expect-error
-  const userId = req.user._id;
-  User.findByIdAndUpdate(userId, { avatar }, { new: true, runValidators: true })
-    .orFail()
-    .then((user) => res.send(user))
-    .catch(next);
+  updateUser({ avatar }, req, res, next);
 };

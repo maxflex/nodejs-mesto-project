@@ -15,20 +15,21 @@ router.use('/cards', cardsRouter);
 router.use(() => { throw new RouteNotExistsError(); });
 // eslint-disable-next-line
 router.use((err: any, req: Request, res: Response, next: NextFunction) => {
-  const { message } = err;
+  let { message } = err;
   let status: number;
 
   switch (true) {
     case isCelebrateError(err):
+    case err instanceof mongoose.Error.CastError:
     case err instanceof mongoose.Error.ValidationError:
       status = constants.HTTP_STATUS_BAD_REQUEST;
       break;
-    case err instanceof mongoose.Error.CastError:
     case err instanceof mongoose.Error.DocumentNotFoundError:
     case err instanceof RouteNotExistsError:
       status = constants.HTTP_STATUS_NOT_FOUND;
       break;
     default:
+      message = 'На сервере произошла ошибка';
       status = constants.HTTP_STATUS_INTERNAL_SERVER_ERROR;
   }
 
