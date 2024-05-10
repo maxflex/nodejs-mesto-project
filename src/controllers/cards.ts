@@ -9,7 +9,11 @@ export const getCards = (req: Request, res: Response, next: NextFunction) => {
 };
 
 export const deleteCard = (req: Request, res: Response, next: NextFunction) => {
-  Card.findByIdAndDelete(req.params.cardId)
+  Card.findOne({
+    _id: req.params.cardId,
+    owner: req.user?._id,
+    // owner: req.user.
+  })
     .orFail()
     .then((card) => res.send(card))
     .catch(next);
