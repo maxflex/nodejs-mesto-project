@@ -32,7 +32,10 @@ export const createUser = (req: Request, res: Response, next: NextFunction) => {
   bcrypt.hash(password, 10).then((hash) => User.create({
     name, about, avatar, email, password: hash,
   }))
-    .then((user) => res.status(constants.HTTP_STATUS_CREATED).send(user))
+    .then((user) => res.status(constants.HTTP_STATUS_CREATED).send({
+      ...user.toObject(),
+      password: undefined,
+    }))
     .catch(next);
 };
 

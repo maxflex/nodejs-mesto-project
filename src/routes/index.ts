@@ -29,7 +29,7 @@ router.post('/signup', celebrate({
 router.use(auth);
 router.use('/users', usersRouter);
 router.use('/cards', cardsRouter);
-router.use(errorLogger);
 router.use(() => { throw new RouteNotExistsError(); });
+router.use(errorLogger);
 router.use(errors);
 export default router;
