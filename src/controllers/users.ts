@@ -7,9 +7,7 @@ import User, { IUser } from '../models/user';
 import { UnauthorizedError } from '../errors';
 
 function updateUser(update: UpdateQuery<IUser>, req: Request, res: Response, next: NextFunction) {
-  // @ts-expect-error
-  const userId = req.user._id;
-  User.findByIdAndUpdate(userId, update, { new: true, runValidators: true })
+  User.findByIdAndUpdate(req.user?._id, update, { new: true, runValidators: true })
     .orFail()
     .then((user) => res.send(user))
     .catch(next);
@@ -38,9 +36,11 @@ export const createUser = (req: Request, res: Response, next: NextFunction) => {
     .catch(next);
 };
 
-export const getProfile = (req: Request, res: Response) => {
-  // @ts-expect-error
-  res.send(req.user);
+export const getProfile = (req: Request, res: Response, next: NextFunction) => {
+  User.findById(req.user?._id)
+    .orFail()
+    .then((user) => res.send(user))
+    .catch(next);
 };
 
 export const updateProfile = (req: Request, res: Response, next: NextFunction) => {
@@ -56,6 +56,7 @@ export const updateAvatar = (req: Request, res: Response, next: NextFunction) =>
 export const login = (req: Request, res: Response, next: NextFunction) => {
   const { email, password } = req.body;
   User.findOne({ email })
+    .select('+password')
     .then((user) => {
       if (!user || !bcrypt.compareSync(password, user.password)) {
         throw new UnauthorizedError();

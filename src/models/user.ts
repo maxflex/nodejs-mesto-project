@@ -1,5 +1,5 @@
 import { model, Schema, Document } from 'mongoose';
-import { isEmail } from 'validator';
+import { isEmail, isURL } from 'validator';
 
 export interface IUser extends Document {
   name: string;
@@ -25,19 +25,18 @@ const userSchema = new Schema<IUser>({
   avatar: {
     type: String,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+    validate: isURL,
   },
   email: {
     type: String,
     required: true,
     unique: true,
-    index: true,
     validate: isEmail,
   },
   password: {
     type: String,
     required: true,
-    min: 2,
-    max: 200,
+    select: false,
   },
 });
 
